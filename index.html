@@ -9,6 +9,7 @@
     <link rel="icon" href="icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Clock">
+	<style>svg { position:fixed; top:0; bottom:0; left:0; right:0 }</style>
   </head>
   <body>
 <svg
@@ -21,7 +22,8 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    id="svg32869"
-   width="100%" viewBox="0 0 170 170"
+   viewBox="0 0 170 170"
+   width="100%" height="100%"
    version="1.1">
   <defs
      id="defs32871">
@@ -552,18 +554,22 @@
   var day_hours = 24 // 10
   var num_hours = 12 // 10
   var num_minutes = 60 // 100
+  var offset = 0
   var day_hours = 10
   var num_hours = 10
   var num_minutes = 100
+  /*
+  var offset = 4/24
   var day_hours = 24
   var num_hours = 8
   var num_minutes = 64
+  */
   
   var mark = document.getElementById("mark_1")
   for(var i=1;i<num_minutes;i++) {
       var mark2 = mark.cloneNode(true)
       mark2.setAttribute("transform", "rotate("+(i*360/num_minutes)+cXY)
-      mark.parentNode.appendChild(mark2)
+      mark.parentNode.insertBefore(mark2, mark)
   }
   var mark = document.getElementById("mark_2")
   var digits = document.getElementById("digits")
@@ -575,17 +581,17 @@
   for(var i=1;i<num_hours;i++) {
       var mark2 = mark.cloneNode(true)
       mark2.setAttribute("transform", "rotate("+(i*360/num_hours)+cXY)
-      mark.parentNode.appendChild(mark2)
+      mark.parentNode.insertBefore(mark2, mark)
       var digits2 = digits.cloneNode(true)
       digits2.setAttribute("x", 83.691625 + 50 * Math.sin(i*2*Math.PI/num_hours))
       digits2.setAttribute("y", 82.5 - 50 * Math.cos(i*2*Math.PI/num_hours) + 0.25 * h)
       digits2.textContent = ""+i
-      digits.parentNode.appendChild(digits2)
+      digits.parentNode.insertBefore(digits2, digits)
   }
       
   window.setInterval(function(){
       var currentdate = new Date();
-      var time = (currentdate.getMilliseconds()*0.001 + currentdate.getSeconds() + 60 * (currentdate.getMinutes() + 60 * currentdate.getHours()))/(3600*24)
+      var time = (currentdate.getMilliseconds()*0.001 + currentdate.getSeconds() + 60 * (currentdate.getMinutes() + 60 * currentdate.getHours()))/(3600*24) - offset
       var deg = 360 * time * day_hours / num_hours
       var cc = document.getElementById("hours_hand")
       cc.setAttribute("transform", "rotate("+deg+cXY)
