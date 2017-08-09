@@ -1,14 +1,24 @@
 <!doctype html>
-<html dropzone>
+<html manifest="cache.appcache">
   <head>
     <title>Clock</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#303F9F">
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon-precomposed" href="icon.png">
-    <link rel="icon" href="icon.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="icon" href="icon_128x128.png">
     <meta name="application-name" content="Clock">
+    
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Weather PWA">
+  <link rel="apple-touch-icon-precomposed" href="icon_152x152.png">
+  <link rel="apple-touch-icon" href="icon_152x152.png">
+
+  <meta name="msapplication-TileImage" content="icon_144x144.png">
+  <meta name="msapplication-TileColor" content="#2F3BA2">    
+    
 	<style>svg { position:fixed; top:0; bottom:0; left:0; right:0 }</style>
   </head>
   <body id="xxx">
@@ -16,7 +26,7 @@
   
   <script>
 clocks = ["clock4.svg", "clock5.svg", "clock6.svg"]
-clock_idx = 0
+clock_idx = localStorage.clock_idx || 0
 modes = [{
    day_hours: 24,
    num_hours: 12,
@@ -34,7 +44,7 @@ modes = [{
    num_minutes: 64,
 }
 ]
-mode_idx = 0
+mode_idx = localStorage.mode_idx || 0
 var timer_id = undefined
 
 
@@ -141,7 +151,8 @@ function handleTouchMove(evt) {
         } else {
           clock_idx += 1
           if(clock_idx >= clocks.length) clock_idx = 0
-        }                       
+        }
+        localStorage.clock_idx = clock_idx  
         readTextFile(clocks[clock_idx])
     } else {
         if ( yDiff > 0 ) {
@@ -150,7 +161,8 @@ function handleTouchMove(evt) {
         } else {
           mode_idx += 1
           if(mode_idx >= modes.length) mode_idx = 0
-        }                       
+        }
+        localStorage.mode_idx = mode_idx
         readTextFile(clocks[clock_idx])
     }
     /* reset values */
