@@ -16,6 +16,7 @@ icon_152x152.png
 icon_196x196.png
 icon_256x256.png
 manifest.json
+service-worker.js
 
 NETWORK:
 *
