@@ -19,9 +19,148 @@
   <meta name="msapplication-TileImage" content="icon_144x144.png">
   <meta name="msapplication-TileColor" content="#2F3BA2">    
     
-	<style>svg { position:fixed; top:0; bottom:0; left:0; right:0 }</style>
+	<style>
+    svg { position:fixed; top:0; bottom:0; left:0; right:0 }
+    #options {position:fixed; top:8px; left:8px;width:16px;height:16px; border: 2px solid black; border-radius: 0.25rem;opacity:0.005;transition: 500ms}
+    #options:hover, #options-frame.visible + #options { opacity:0.5}
+    #options-frame {position:fixed; top:0px; left:-250px;width:240px;bottom:0px; background:#eee;border: 1px solid black;opacity:0;transition: 500ms;
+    font-family: 'Open Sans', sans-serif;
+    padding:6px 15px; margin: 0px; margin-top:0px}
+    #options-frame.visible {left:0px;opacity:1}
+    
+.toggle input {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.toggle {
+  display: table;
+  -webkit-tap-highlight-color: transparent;
+  margin-bottom: 1rem;
+}
+
+div.select {
+    border-radius: 2rem;
+    border: 2px solid black;
+    width:  9rem;
+    height: 2rem;
+    background: white;
+    padding: 0px 8px;
+  transition: 200ms ease-out;
+}
+div.select select {
+    border: none;
+    width:  100%;
+    height: 100%;
+    background: transparent;
+    font-family: inherit;
+    font-size: inherit;
+    outline: none !important;
+}
+div.select select:focus { text-decoration: underline;}
+div.select:hover { box-shadow: 0 0 6px #005ca4; }
+
+.toggle input:focus + div { text-decoration: underline; }
+
+.toggle > div {
+  cursor: pointer;
+  border-radius: 2rem;
+  width: 5rem;
+  height: 2rem;
+  background: white;
+  border: 2px solid black;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  position: relative;
+  transition: 200ms ease-out;
+  font-size: 0;
+}
+
+.toggle > div:hover { box-shadow: 0 0 6px #005ca4; }
+
+.toggle > div:before {
+  will-change: translate;
+  display: block;
+  position: absolute;
+ top: calc(50% - .5rem);
+ left: .5rem;
+  content: '';
+  width: 1rem;
+  height: 1rem;
+  background: black;
+  border-radius: 50%;
+  transition: 200ms;
+}
+
+.toggle > div:after {
+  font-size: 1rem;
+  position: absolute;
+  right: -50%;
+  top: 50%;
+  transform: translateY(-50%);
+  content: attr(data-off);
+  pointer-events: none;
+}
+
+.toggle input:checked + div {
+  background: #0078d7;
+  border-color: #0078d7;
+}
+
+.toggle input:checked + div:before {
+  color: #0078d7;
+  transform: translateX(280%);
+  transform: translateX(calc(2.5*100% + 4px));
+  background: white;
+}
+
+.toggle input:checked + div:after { content: attr(data-on); }
+input:focus + div:after { text-decoration: underline; }
+    </style>
   </head>
-  <body id="xxx">
+  <body><div id="xxx">
+      all-free-download.com
+  </div>
+  
+<div id="options-frame" class="visible">
+  <div style="padding-left:18px;font-size:1.25em"><b>Options</b></div>
+  <div class="toggle-component">
+    <p>Clock face</p>
+    <div class="select"><select id="face_select" onchange="face_change()">
+        <option value="0">white</option>
+        <option value="1">black</option>
+        <option value="2">Wecker</option>
+        <option value="3">orange</option>
+    </select></div>
+  </div>    
+  <div class="toggle-component">
+    <p>Clock mode</p>
+    <div class="select"><select id="mode_select" onchange="mode_change()">
+        <option value="0">duodecimal</option>
+        <option value="1">decimal</option>
+        <option value="2">octal</option>
+        <option value="3">360°</option>
+    </select></div>
+  </div>    
+  <div class="toggle-component">
+    <p>Time delay mode</p>
+    <label class="toggle">
+    <input id="diff_check" type="checkbox" onchange="toggle_diff()">
+    <div data-off="Off" data-on="On"></div>
+    </label>
+  </div>    
+</div>
+<div id="options" onclick="toggle_options()">  
+  <img src="data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='#000' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M2 4h12M2 8h12M2 12h12'/%3E%3C/svg%3E"/>
+</div>
   </body>
   
   <script>
@@ -31,28 +170,67 @@ if ('serviceWorker' in navigator) {
              .then(function() { console.log('Service Worker Registered'); });
   }         
       
-clocks = ["clock4.svg", "clock5.svg", "clock6.svg"]
-clock_idx = localStorage.clock_idx || 0
+clocks = ["clock4.svg", "clock5.svg", "clock6.svg", "clock9.svg"]
+clock_idx = 1*localStorage.clock_idx || 0
 modes = [{
    day_hours: 24,
    num_hours: 12,
    num_minutes: 60,
+   num_seconds: 60,
    offset: 0,
+   step: 1,
 }, {
    day_hours: 10,
    num_hours: 10,
    num_minutes: 100,
+   num_seconds: 100,
    offset: 0,
+   step: 1,
 }, {
    offset: 4/24,
    day_hours: 24,
    num_hours: 8,
    num_minutes: 64,
+   num_seconds: 64,
+   step: 1,
+}, {
+   offset: 0,
+   day_hours: 360,
+   num_hours: 360,
+   num_minutes: 60,
+   num_seconds: 1,
+   step: 30,
 }
 ]
-mode_idx = localStorage.mode_idx || 0
+mode_idx = 1*localStorage.mode_idx || 0
+diff_mode = 1*localStorage.diff_mode || 0
+document.getElementById("face_select").selectedIndex = clock_idx
+document.getElementById("mode_select").selectedIndex = mode_idx
+document.getElementById("diff_check").checked = diff_mode
+
 var timer_id = undefined
 
+function toggle_options() {
+    var d = document.getElementById("options-frame")
+    console.log(d.getAttribute("class"))
+    d.setAttribute("class", d.getAttribute("class")?"":"visible")
+}
+
+function toggle_diff() {
+    diff_mode = document.getElementById("diff_check").checked
+    localStorage.diff_mode = 1*diff_mode
+    readTextFile(clocks[clock_idx])
+}
+function mode_change() {
+    mode_idx = document.getElementById("mode_select").selectedIndex
+    localStorage.mode_idx = 1*mode_idx
+    readTextFile(clocks[clock_idx])
+}
+function face_change() {
+    clock_idx = document.getElementById("face_select").selectedIndex
+    localStorage.clock_idx = 1*clock_idx
+    readTextFile(clocks[clock_idx])
+}
 
 function readTextFile(file)
 {
@@ -69,7 +247,33 @@ function readTextFile(file)
         }
     }
     rawFile.send(null);
-}    
+}
+
+function put_text_svg(x, y, text, scale) {
+    scale = scale || 1
+  var characters = []
+  var width = -2
+  var mark = document.getElementById("mark_2")
+  for(var i=0; i<text.length; i++) {
+      var c = text.substr(i,1)
+      var node = document.getElementById("digit_"+c).cloneNode(true)
+      node.setAttribute('id', '')
+      width += node.getBBox().width + 2
+      characters.push(node)
+  }
+  var pos = x/scale - width * 0.5
+  for(var i=0; i<text.length; i++) {
+      var node = characters[i]
+      mark.parentNode.insertBefore(node, mark)
+      var rect = node.getBBox()
+      var px = (pos - rect.x)*scale
+      var py = y + (- 0.5 * rect.height - rect.y)*scale
+      node.setAttribute('transform','translate('+px+','+py+') scale('+scale+')')
+      pos += rect.width + 2
+  }
+}
+
+function deg2rad(deg) { return deg*Math.PI/180 }
     
 function initialize(text) {
   if(timer_id !== undefined) {
@@ -78,51 +282,127 @@ function initialize(text) {
   var ddiv = document.getElementById("xxx")
   ddiv.innerHTML = text
   
-  var cXY = ",83.691625, 82.5)"
+  var mid_x = 83.691625, mid_y = 82.5
+  
+  var digits = document.getElementById("digits")
+  if(digits) {
+      var h = digits.getExtentOfChar(0).height
+      function put_text(x, y, text, scale) {
+         var digits2 = digits.cloneNode(true)
+         digits2.setAttribute("x", x/scale)
+         digits2.setAttribute("y", (y + 0.3*scale * height)/scale)
+         digits2.setAttribute('transform','scale('+scale+')')
+         digits2.textContent = text
+         digits.parentNode.insertBefore(digits2, digits)
+      }
+      var bb = digits.getBBox()
+      height = bb.height
+      radius = mid_y - bb.y - 0.5 * height
+  } else {
+      var bb = document.getElementById("digit_0").getBBox()
+      put_text = put_text_svg
+      radius = mid_y - bb.y - 0.5 * bb.height
+  }
+  
+  var cXY = "," + mid_x + ", " + mid_y + ")"
   var mode = modes[mode_idx]
+  var scale = mode.step==30 ? 0.7 : 1
+  var calc_angle = mode.step==30 ? function(a){return 90-a}:function(a){return a}
   var mark = document.getElementById("mark_1")
   for(var i=1;i<mode.num_minutes;i++) {
-      if(Math.abs((i*mode.num_hours/mode.num_minutes)%1)>1e-7) {
+      if(Math.abs((i*mode.num_hours/(mode.step*mode.num_minutes))%1)>1e-7) {
          var mark2 = mark.cloneNode(true)
          mark2.setAttribute("transform", "rotate("+(i*360/mode.num_minutes)+cXY)
          mark.parentNode.insertBefore(mark2, mark)
       }
   }
   mark.parentNode.removeChild(mark)
+  
   var mark = document.getElementById("mark_2")
-  var digits = document.getElementById("digits")
-  digits.textContent = "" + mode.num_hours
-  var h = digits.getExtentOfChar(0).height
-  console.log(h)
-  digits.setAttribute("x", 83.691625)
-  digits.setAttribute("y", 82.5 - 50 + 0.25 * h)
-  for(var i=1;i<mode.num_hours;i++) {
+  for(var i=mode.step;i<=mode.num_hours;i+=mode.step) {
+      var angle = calc_angle(i*360/mode.num_hours)
       var mark2 = mark.cloneNode(true)
-      mark2.setAttribute("transform", "rotate("+(i*360/mode.num_hours)+cXY)
+      mark2.setAttribute("transform", "rotate("+angle+cXY)
       mark.parentNode.insertBefore(mark2, mark)
-      var digits2 = digits.cloneNode(true)
-      digits2.setAttribute("x", 83.691625 + 50 * Math.sin(i*2*Math.PI/mode.num_hours))
-      digits2.setAttribute("y", 82.5 - 50 * Math.cos(i*2*Math.PI/mode.num_hours) + 0.25 * h)
-      digits2.textContent = ""+i
-      digits.parentNode.insertBefore(digits2, digits)
+      var px = mid_x + radius * Math.sin(deg2rad(angle))
+      var py = mid_y - radius * Math.cos(deg2rad(angle))     
+      put_text(px, py, "" + i, scale)
   }
-  function update() {
+  mark.parentNode.removeChild(mark)
+  if(digits) {
+      digits.parentNode.removeChild(digits)
+  } else {
+      for(var i=0;i<10;i++) {
+        digits = document.getElementById("digit_"+i)
+        digits.parentNode.removeChild(digits)
+      }
+  }
+  
+  if(mode.num_seconds==1) {
+     var cc = document.getElementById("hours_hand")
+     cc.parentNode.removeChild(cc)
+     var cc = document.getElementById("minutes_hand")
+     cc.setAttribute('id', 'hours_hand')
+     var cc = document.getElementById("seconds_hand")
+     cc.setAttribute('id', 'minutes_hand')
+  }
+  
+  
+  function current_millies() {
       var currentdate = new Date();
-      var time = (currentdate.getMilliseconds()*0.001 + currentdate.getSeconds() + 60 * (currentdate.getMinutes() + 60 * currentdate.getHours()))/(3600*24) - mode.offset
-      var deg = 360 * time * mode.day_hours / mode.num_hours
-      var cc = document.getElementById("hours_hand")
-      cc.setAttribute("transform", "rotate("+deg+cXY)
-      time = (time * mode.day_hours) % 1
-      deg = 360 * time
-      cc = document.getElementById("minutes_hand")
-      cc.setAttribute("transform", "rotate("+deg+cXY)
-      time = (time * mode.num_minutes) % i
-      deg = 360 * time
-      cc = document.getElementById("seconds_hand")
-      cc.setAttribute("transform", "rotate("+deg+cXY)
+      return currentdate.getMilliseconds() + 1000 * (
+          currentdate.getSeconds() + 60 * (
+          currentdate.getMinutes() + 60 * currentdate.getHours()))
+  }
+  
+  prev_seconds = prev_minutes = prev_hours = -1
+  
+  if (diff_mode) {
+    diff_speed = .0034
+    diff_max = 300
+    diff_current = 295
+    function get_diff() {
+        diff_current += diff_speed
+        if(diff_current > diff_max) diff_speed *= -1
+        if(diff_current < 0) diff_speed *= -1
+        return diff_current / (3600 * 24)
+    }
+  } else {
+      function get_diff() { return 0; }
+  }
+  
+  function update() {
+      var time = current_millies() / (1000 * 3600 * 24) - mode.offset + get_diff()
+      time *= mode.day_hours / mode.num_hours
+      var shift = Math.floor(time)
+      time = (time - shift) * mode.num_hours
+      var hours = Math.floor(time)
+      time = (time - hours) * mode.num_minutes
+      var minutes = Math.floor(time)
+      time = (time - minutes) * mode.num_seconds
+      var seconds = Math.floor(time)
+      //console.log(shift, hours, minutes, seconds)
+      hours += minutes / mode.num_minutes
+      if (prev_hours != hours) {
+         var cc = document.getElementById("hours_hand")
+         cc.setAttribute("transform", "rotate("+calc_angle(hours*360/mode.num_hours)+cXY)
+         prev_hours = hours
+      }
+      if (prev_minutes != minutes) {
+         var cc = document.getElementById("minutes_hand")
+         cc.setAttribute("transform", "rotate("+calc_angle(minutes*360/mode.num_minutes)+cXY)
+         prev_minutes = minutes
+      }
+      if (prev_seconds != seconds) {
+         var cc = document.getElementById("seconds_hand")
+         if(cc)
+             cc.setAttribute("transform", "rotate("+calc_angle(seconds*360/mode.num_seconds)+cXY)
+         prev_seconds = seconds
+      }
   }
 
-  timer_id = window.setInterval(update, 100)
+  var intv = 24*3600*100/(mode.day_hours*mode.num_minutes*mode.num_seconds)
+  timer_id = window.setInterval(update, intv)
   update()
 } 
 
